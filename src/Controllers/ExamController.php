@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Question;
 use App\Models\UserAnswer;
-
+use App\Models\User;
 class ExamController extends BaseController
 {
     public function registrationForm()
@@ -18,10 +18,15 @@ class ExamController extends BaseController
     {
         $this->initializeSession();
         $data = $_POST;
-        // Save the registration to database
-        $_SESSION['user_id'] = 1; // Replace this literal value with the actual user ID from new registration
+
+        $userModel = new \App\Models\User();
+        $userId = $userModel->save($data);
+
+        If ($userId) {
+        $_SESSION['user_id'] = $userId; // Replace this literal value with the actual user ID from new registration
         $_SESSION['complete_name'] = $data['complete_name'];
         $_SESSION['email'] = $data['email'];
+        }
 
         return $this->render('pre-exam', $data);
     }
@@ -94,4 +99,30 @@ class ExamController extends BaseController
 
         return $this->render('result', $data);
     }
+
+    public function login()
+    {
+    $this->initializeSession();
+    $data = $_POST;
+
+    $userModel = new User();
+    $isAuthenticated = $userModel->verifyAccess($data['email'], $data['password']);
+
+    if ($isAuthenticated) {
+       
+        $user = $userModel->getUserByEmail($data['email']);
+        
+        // Store user info in session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['complete_name'] = $user['complete_name'];
+        $_SESSION['email'] = $user['email'];
+
+       
+        header("Location: /exam");
+        exit;
+    } else {
+        // Handle failed login (e.g., show an error message)
+        return $this->render('login-form', ['error' => 'Invalid email or password']);
+    }
+}
 }
