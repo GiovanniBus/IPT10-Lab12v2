@@ -16,5 +16,8 @@
             "name": "Romack Natividad",
             "email": "natividad.romack@auf.edu.ph"
         }
-    ]
+    ],
+    "config": {
+        "disable-tls": true
+    }
 }
